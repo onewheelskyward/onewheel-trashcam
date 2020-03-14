@@ -10,7 +10,7 @@ class Trashcam
   @timestamp
   @config
 
-  attr_reader :token
+  attr_reader :token, :config
 
   def initialize
     @base_path = __dir__
@@ -88,7 +88,20 @@ class Trashcam
     img_file = "#{@base_path}/jpg/#{@timestamp}.jpg"
     puts "Writing #{img_file}"
 
-    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v 1 #{img_file}")
+    frame_count_cmd = `ffmpeg -i #{@seg_file} -map 0:v:0 -c copy -f null - 2>&1 | grep 'frame='`
+    frame_count_md = frame_count_cmd.match /frame=\s+(\d+)/
+    frame_count = frame_count_md[1].to_i
+
+    first = 1
+    last = frame_count
+    middle = frame_count / 2
+
+    puts "Frame count: #{frame_count}"
+    puts "b/m/e: #{first}/#{middle}/#{last}"
+
+    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{begin} #{img_file}-#{begin}")
+    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{middle} #{img_file}-#{middle}")
+    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{last} #{img_file}-#{last}")
 
     file_size = File.size(img_file)
 
@@ -114,6 +127,6 @@ while true
 
   tcam.get_segment_file
   tcam.write_image
-  puts "Sleeping..."
-  sleep(19)
+  puts "Sleeping for #{tcam.config['delay']} seconds..."
+  sleep(tcam.config['delay'])
 end
