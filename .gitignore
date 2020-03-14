@@ -1,0 +1,7 @@
+Gemfile.lock
+jpg*
+mp4*
+out-test.avi
+token.txt
+*~
+.idea
