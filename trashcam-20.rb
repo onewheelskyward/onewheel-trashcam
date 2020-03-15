@@ -33,8 +33,8 @@ class Trashcam
   end
 
   def get_token
-    puts "Grabbing token"
-    resp = RestClient.get @config['page_url'], :user_agent => @user_agent
+    puts 'Grabbing token'
+    resp = RestClient.get @config['page_url'], user_agent:  @user_agent
 
     # Read the iframe source
     x = resp.match /source: '(.*)'/
@@ -85,25 +85,27 @@ class Trashcam
   end
 
   def write_image
-    img_file = "#{@base_path}/jpg/#{@timestamp}.jpg"
-    puts "Writing #{img_file}"
-
     frame_count_cmd = `ffmpeg -i #{@seg_file} -map 0:v:0 -c copy -f null - 2>&1 | grep 'frame='`
     frame_count_md = frame_count_cmd.match /frame=\s+(\d+)/
     frame_count = frame_count_md[1].to_i
 
     first = 1
-    last = frame_count
     middle = frame_count / 2
+    last = frame_count
+
+    ext = '.jpg'
 
     puts "Frame count: #{frame_count}"
     puts "b/m/e: #{first}/#{middle}/#{last}"
 
-    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{begin} #{img_file}-#{begin}")
-    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{middle} #{img_file}-#{middle}")
-    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{last} #{img_file}-#{last}")
+    img_file_base = "#{@base_path}/jpg/#{@timestamp}"
+    puts "Writing #{img_file_base}-#{first}#{ext}"
 
-    file_size = File.size(img_file)
+    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{first} #{img_file_base}-#{first}#{ext}")
+    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{middle} #{img_file_base}-#{middle}#{ext}")
+    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{last} #{img_file_base}-#{last}#{ext}")
+
+    file_size = File.size("#{img_file_base}-#{first}#{ext}")
 
     puts "jpg file size: #{file_size}"
   end
