@@ -99,11 +99,16 @@ class Trashcam
     puts "b/m/e: #{first}/#{middle}/#{last}"
 
     img_file_base = "#{@base_path}/jpg/#{@timestamp}"
-    puts "Writing #{img_file_base}-#{first}#{ext}"
 
-    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{first} #{img_file_base}-#{first}#{ext}")
-    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{middle} #{img_file_base}-#{middle}#{ext}")
-    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{last} #{img_file_base}-#{last}#{ext}")
+    img_file_first = "#{img_file_base}-#{first}#{ext}"
+    img_file_middle = "#{img_file_base}-#{middle}#{ext}"
+    img_file_last = "#{img_file_base}-#{last}#{ext}"
+    puts "Writing #{img_file_first}"
+    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{first} #{img_file_first}")
+    puts "Writing #{img_file_middle}"
+    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{middle} #{img_file_middle}")
+    puts "Writing #{img_file_last}"
+    system("ffmpeg -nostats -loglevel 0 -i #{@seg_file} -frames:v #{last} #{img_file_last}")
 
     file_size = File.size("#{img_file_base}-#{first}#{ext}")
 
