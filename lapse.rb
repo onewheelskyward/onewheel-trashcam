@@ -7,6 +7,12 @@ unless date
   exit
 end
 
-puts date
+now = Time.now.to_i
+
 puts date.to_i
-puts Time.now.to_i
+puts now
+
+
+list = Dir.glob("jpg/*")
+
+puts list
